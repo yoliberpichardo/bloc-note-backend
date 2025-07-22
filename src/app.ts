@@ -1,24 +1,28 @@
 import express from "express";
-import cors, { CorsOptions } from "cors";
-import dotenv from "dotenv";
-import tasksRouter from "./routes/tasks.routes";
+import cors from "cors";
+import authRoutes from "./routes/note.routes";
+import noteRoutes from "./routes/note.routes";
+import { errorHandler } from "./middlewares/error.middleware";
+import connectDB from "./database";
 
-dotenv.config();
-
-const corsOptions: CorsOptions = {
-  origin: "http://127.0.0.1:5500",
-  optionsSuccessStatus: 200,
-  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
-};
-
+// Configuración inicial
 const app = express();
-
-// Middlewares
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(express.json());
-app.use("/static", express.static("./static/"));
 
-// Routes
-app.use("/api", tasksRouter);
+// Conectar a MongoDB
+connectDB();
+
+// Rutas
+app.use("/api/auth", authRoutes);
+app.use("/api/notes", noteRoutes);
+
+// Manejo de errores
+app.use(errorHandler);
 
 export default app;
